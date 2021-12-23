@@ -8,12 +8,32 @@
 
 
 
-let inputInput =  document.querySelector("#task-input")
-let addBtn  = document.querySelector(".add")
-let taskList = []
-addBtn.addEventListener('click', addHandler)
+let inputInput =  document.querySelector("#task-input");
+let addBtn  = document.querySelector(".add");
+let tabs = document.querySelectorAll('.task-tabs div');
+let taskList = [];
+let mode = "all";
+let filterList = [];
+addBtn.addEventListener('click', addHandler);
+let underline = document.querySelector("#under-line")
 
 
+
+function enter(){
+    if(e.keyCode === 13){
+        render()
+    }
+}
+
+enter()
+
+
+
+for(let i =1; i<tabs.length; i++){
+    tabs[i].addEventListener("click", function(e){
+        filter(e)
+    })
+}
 function addHandler(){
     let task = {
         id:randomIdGenerate(),
@@ -26,22 +46,28 @@ function addHandler(){
 }
 
 function render(){
+    let list = [];
+    if(mode === "all"){
+        list = taskList
+    }else if(mode === "ongoing" || mode === "done"){
+        list = filterList;
+    }
     let resultHTML = '';
-    for(let i =0; i<taskList.length; i++){
-        if(taskList[i].isComplete === true){
+    for(let i =0; i<list.length; i++){
+        if(list[i].isComplete === true){
             resultHTML += `<div class="task on">
-            <div class="task-done">${taskList[i].taskContents}</div>
+            <div class="task-done">${list[i].taskContents}</div>
                 <div>
-                    <button onclick="toggleComplete('${taskList[i].id}')">Check</button>
+                    <button onclick="toggleComplete('${list[i].id}')">Check</button>
                     <button onclick="deleteTask()">Delete</button>
                 </div>
                 </div>`;
         }else{
         resultHTML += `<div class="task">
-        <div>${taskList[i].taskContents}</div>
+        <div>${list[i].taskContents}</div>
             <div>
-                <button onclick="toggleComplete('${taskList[i].id}')">Check</button>
-                <button onclick="deleteTask('${taskList[i].id}')">Delete</button>
+                <button onclick="toggleComplete('${list[i].id}')">Check</button>
+                <button onclick="deleteTask('${list[i].id}')">Delete</button>
             </div>
             </div>`;
         }
@@ -72,6 +98,30 @@ function deleteTask(id){
     }
     render()
 }
+
+function filter(e){
+    mode = e.target.id
+    console.log(e.target.id);
+    filterList = [];
+    if(mode === "all"){
+        render()
+    }else if(mode === "ongoing"){
+        for(let i =0; i<taskList.length; i++){
+            if(taskList[i].isComplete === false){
+                filterList.push(taskList[i])
+            }
+        }
+    }else if(mode === "done"){
+        for(let i = 0; i<taskList.length; i++){
+            if(taskList[i].isComplete === true){
+                filterList.push(taskList[i])
+            }
+        }
+    }
+    render()
+    console.log(filterList)
+}
+
 
 function randomIdGenerate(){
     return '_' + Math.random().toString(36).substr(2, 9);
